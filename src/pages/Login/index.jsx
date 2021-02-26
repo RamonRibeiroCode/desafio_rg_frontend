@@ -18,7 +18,7 @@ export default function Logon() {
     e.preventDefault()
 
     try {
-      const resp = await api.post(`http://localhost:3003/signin`, {
+      const resp = await api.post(`/signin`, {
         login: login,
         senha: senha,
       })
@@ -48,6 +48,7 @@ export default function Logon() {
             onChange={e => setLogin(e.target.value)}
           />
           <input
+            type="password"
             placeholder="Senha"
             value={senha}
             onChange={e => setSenha(e.target.value)}

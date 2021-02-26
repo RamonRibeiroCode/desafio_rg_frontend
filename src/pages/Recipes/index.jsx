@@ -16,7 +16,7 @@ export default function Profile() {
 		try {
 			let token = localStorage.getItem("token")
 			api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-			const resp = await api.get("http://localhost:3003/recipes")
+			const resp = await api.get("/recipes")
 			setRecipes(resp.data)
 		} catch {
 			toast.error("Não foi possivel resgatar suas receitas")
