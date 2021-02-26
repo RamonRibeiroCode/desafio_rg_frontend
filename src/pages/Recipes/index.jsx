@@ -9,13 +9,13 @@ import './styles.css'
 export default function Profile() {
 
 	const [recipes, setRecipes] = useState([])
+	const [visibleRecipes, setVisibleRecipes] = useState([])
+	const [category, setCategory] = useState('all')
 	const history = useHistory()
 	const userData = localStorage.getItem('userData')
 
 	async function getRecipes() {
 		try {
-			let token = localStorage.getItem("token")
-			api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 			const resp = await api.get("/recipes")
 			setRecipes(resp.data)
 		} catch {
@@ -25,7 +25,16 @@ export default function Profile() {
 	}
 
 	function deleteRecipe(id) {
-		console.log('Ola')
+		try {
+			api.delete(`/recipes/${id}`)
+				.then(() => {
+					toast.success("Receita deletada com sucesso")
+					getRecipes()
+				})
+			
+		} catch(err) {
+			toast.error(err.msg)
+		}
 	}
 
 	useEffect(() => {
@@ -44,26 +53,29 @@ export default function Profile() {
 				<img src={chefLogo} alt="Chef Logo" />
 				<span> Bem-vindo, {userData} </span>
 
-				<Link className="button" to="/newRecipe"> Cadastrar novo caso </Link>
+				<Link className="button" to="/newRecipe"> Cadastrar nova Receita </Link>
 				<button onClick={handleLogout} type="button">
 					<FiPower size={18} color="1d458a" />
 				</button>
 			</header>
-			<h1> Casos Cadastrados </h1>
+			<h1> Receitas Cadastradas </h1>
 			<ul>
 				{recipes.map(recipe => (
 					<li key={recipe.id}>
-						<strong> CASO: </strong>
-						<p> {recipe.nome} </p>
+						<strong> RECEITA: </strong>
+						<p> {recipe.nomeReceita} </p>
 
-						<strong> id_categorias: </strong>
-						<p> {recipe.id_categorias} </p>
+						<strong> CATEGORIA: </strong>
+						<p> {recipe.nomeCategoria} </p>
 
 						<strong> INGREDIENTES: </strong>
 						<p> {recipe.ingredientes} </p>
 
 						<strong> DATA: </strong>
 						<p> {recipe.criado_em} </p>
+
+						<strong> MODO DE PREPARO: </strong>
+						<p> {recipe.modo_preparo} </p>
 
 						<strong> PORÇÕES: </strong>
 						<p> {recipe.porcoes} </p>
