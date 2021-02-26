@@ -1,10 +1,14 @@
 import React from 'react'
 
 import Navigator from './routes'
+import { ToastContainer} from 'react-toastify'
 
 function App() {
   return (
-    <Navigator />
+    <>
+      <ToastContainer />
+      <Navigator />
+    </>
   )
 }
 
