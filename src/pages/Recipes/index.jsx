@@ -10,36 +10,43 @@ export default function Profile() {
 
 	const [recipes, setRecipes] = useState([])
 	const [visibleRecipes, setVisibleRecipes] = useState([])
-	const [category, setCategory] = useState('all')
+	const [search, setSearch] = useState('')
+
 	const history = useHistory()
 	const userData = localStorage.getItem('userData')
 
 	async function getRecipes() {
 		try {
-			const resp = await api.get("/recipes")
-			setRecipes(resp.data)
+			await api.get("/recipes")
+        .then((resp) => {
+          setRecipes(resp.data)
+          const filteredRecipes = recipes.filter(recipe => {
+            return recipe.nomeReceita.toLowerCase().includes(search.toLowerCase().trim())
+          })
+      
+          setVisibleRecipes(filteredRecipes)
+        })
+			
 		} catch {
 			toast.error("Não foi possivel resgatar suas receitas")
 		}
 		
 	}
 
-	function deleteRecipe(id) {
+	async function deleteRecipe(id) {
 		try {
-			api.delete(`/recipes/${id}`)
-				.then(() => {
-					toast.success("Receita deletada com sucesso")
-					getRecipes()
-				})
-			
-		} catch(err) {
+			await api.delete(`/recipes/${id}`)
+        toast.success("Receita deletada com sucesso")
+        getRecipes()
+
+		} catch (err) {
 			toast.error(err.msg)
 		}
 	}
 
 	useEffect(() => {
 		getRecipes()
-	}, [])
+	}, [search, visibleRecipes])
 
 	function handleLogout() {
 		localStorage.clear()
@@ -58,9 +65,18 @@ export default function Profile() {
 					<FiPower size={18} color="1d458a" />
 				</button>
 			</header>
-			<h1> Receitas Cadastradas </h1>
+			<div className="search-container">
+				<input
+					className="searchInput"
+					placeholder="Pesquisar por nome"
+					value={search}
+					onChange={e => setSearch(e.target.value)}
+				/>
+			</div>
+
+			<h1 style={{marginTop: "4%"}}> Receitas Cadastradas </h1>
 			<ul>
-				{recipes.map(recipe => (
+				{visibleRecipes.map(recipe => (
 					<li key={recipe.id}>
 						<strong> RECEITA: </strong>
 						<p> {recipe.nomeReceita} </p>
@@ -81,9 +97,9 @@ export default function Profile() {
 						<p> {recipe.porcoes} </p>
 
 						<button className="deleteIcon" onClick={() => deleteRecipe(recipe.id)} type="button">
-							<FiTrash2 
-								size={20} 
-								color="#a8a8b3" 
+							<FiTrash2
+								size={20}
+								color="#a8a8b3"
 							/>
 						</button>
 					</li>
