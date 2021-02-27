@@ -16,9 +16,11 @@ export default function Register() {
   async function handlerRegister(e) {
     e.preventDefault()
 
-    let pad = function (num) { return ('00' + num).slice(-2) };
-    let date
-    date = new Date()
+    let pad = function(num) { 
+      return ('00' + num).slice(-2) 
+    }
+
+    let date = new Date()
     date = date.getUTCFullYear() + '-' +
       pad(date.getUTCMonth() + 1) + '-' +
       pad(date.getUTCDate()) + ' ' +

@@ -36,8 +36,8 @@ export default function Profile() {
 	async function deleteRecipe(id) {
 		try {
 			await api.delete(`/recipes/${id}`)
-        toast.success("Receita deletada com sucesso")
-        getRecipes()
+        	toast.success("Receita deletada com sucesso")
+        	getRecipes()
 
 		} catch (err) {
 			toast.error(err.msg)
