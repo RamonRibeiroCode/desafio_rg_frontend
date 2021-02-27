@@ -9,7 +9,9 @@ import './styles.css'
 
 import chefLogo from '../../assets/chefLogo.png'
 
-export default function NewRecipe() {
+export default function UpdateRecipe() {
+
+  const history = useHistory()
   const [nome, setNome] = useState('')
   const [categoria, setCategoria] = useState('')
   const [ingredientes, setIngredientes] = useState('')
@@ -17,8 +19,6 @@ export default function NewRecipe() {
   const [porcoes, setPorcoes] = useState('')
   const [tempoPreparoMinutos, setTempoPreparoMinutos] = useState('')
   const [categoriasSelect, setCategoriasSelect] = useState([])
-
-  const history = useHistory()
 
   async function getCategorias() {
     const resp = await api.get('/category')
@@ -30,20 +30,31 @@ export default function NewRecipe() {
     setCategoriasSelect(arrayCategorias)
   }
 
-  async function handleNewRecipe(e) {
+  async function getRecipeToUpdate() {
+    let idRecipe = localStorage.getItem("recipeId")
+    try {
+      const resp = await api.get('/recipes')
+      const recipeToUpdate = resp.data.filter(recipe => {
+          
+        return recipe.id == idRecipe
+      })
+
+      setNome(recipeToUpdate[0].nomeReceita)
+      setIngredientes(recipeToUpdate[0].ingredientes)
+      setModoPreparo(recipeToUpdate[0].modo_preparo)
+      setPorcoes(recipeToUpdate[0].porcoes)
+      setTempoPreparoMinutos(recipeToUpdate[0].tempo_preparo_minutos)
+      setCategoria(recipeToUpdate[0].nomeCategoria)
+
+    } catch (err) {
+      console.log(err)
+    }  
+  }
+
+  async function handleUpdateRecipe(e) {
     e.preventDefault()
 
-    let pad = function(num) { 
-      return ('00' + num).slice(-2)
-    }
-
-    let date = new Date()
-      date = date.getUTCFullYear() + '-' +
-      pad(date.getUTCMonth() + 1) + '-' +
-      pad(date.getUTCDate()) + ' ' +
-      pad(date.getUTCHours()) + ':' +
-      pad(date.getUTCMinutes()) + ':' +
-      pad(date.getUTCSeconds())
+    let idRecipe = localStorage.getItem("recipeId")
 
     let idCategoria = categoriasSelect.filter((item =>{
       return item.value === categoria
@@ -56,20 +67,19 @@ export default function NewRecipe() {
       modo_preparo: modoPreparo,
       porcoes: parseInt(porcoes) ,
       ingredientes: ingredientes,
-      criado_em: date,
-      alterado_em: date
     }  
 
     try {
-      await api.post("/recipes", data)
+      await api.put(`/recipes/${idRecipe}/update`, data)
       history.push('/recipes')
     } catch (err) {
-      alert('Erro ao cadastrar caso, tente novamente.')
+      console.log(err)
     }
   }
 
   useEffect(() => {
-		getCategorias()
+    getCategorias()
+		getRecipeToUpdate()
 	}, [])
 
   return (
@@ -77,8 +87,8 @@ export default function NewRecipe() {
       <div className="content">
         <section style={{ display: 'flex', width: '100%', flexDirection: 'column', alignItems: 'center' }}>
           <img src={chefLogo} alt="Chef Logo" />
-          <h1> Cadastrar Nova Receita </h1>
-          <p> Descreva o caso detalhadamente para encontrar um herói para resolver isso. </p>
+          <h1> Atualize Sua Receita </h1>
+          <p> Atualize a sua receita do modo que você preferir! </p>
           <span style={{ display: 'flex', width: '100%', alignItems: 'flex-start' }}>
             <Link className="back-link" to="/recipes">
               <FiArrowLeft size={16} color="#e02041" />
@@ -87,7 +97,7 @@ export default function NewRecipe() {
           </span>
 
         </section>
-        <form onSubmit={handleNewRecipe}>
+        <form onSubmit={handleUpdateRecipe}>
           <input style={{marginBottom: "8px"}} placeholder="Nome da Receita" value={nome} onChange={e => setNome(e.target.value)} />
           <Select onChange={(categoria) => {
             setCategoria(categoria.value)
@@ -97,7 +107,7 @@ export default function NewRecipe() {
           <textarea placeholder="Modo de Preparo" value={modoPreparo} onChange={e => setModoPreparo(e.target.value)} />
           <input min="1" type="number" placeholder="Porções" value={porcoes} onChange={e => setPorcoes(e.target.value)} />
 
-          <button className="button" type="submit"> Cadastrar </button>
+          <button className="button" type="submit"> Atualizar </button>
 
         </form>
       </div>

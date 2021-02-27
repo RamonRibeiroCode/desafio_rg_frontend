@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
-import { FiPower, FiTrash2 } from 'react-icons/fi'
+import { FiPower, FiTrash2, FiEdit } from 'react-icons/fi'
 import chefLogo from '../../assets/chefLogo.png'
 import api from '../../services/api'
 import { toast } from 'react-toastify'
 import './styles.css'
 
-export default function Profile() {
+export default function Recipes() {
 
 	const [recipes, setRecipes] = useState([])
 	const [visibleRecipes, setVisibleRecipes] = useState([])
@@ -30,7 +30,11 @@ export default function Profile() {
 		} catch {
 			toast.error("Não foi possivel resgatar suas receitas")
 		}
-		
+	}
+
+	function updateRecipe(id) {
+		localStorage.setItem('recipeId', id)
+		history.push('/updateRecipe')
 	}
 
 	async function deleteRecipe(id) {
@@ -98,6 +102,12 @@ export default function Profile() {
 
 						<button className="deleteIcon" onClick={() => deleteRecipe(recipe.id)} type="button">
 							<FiTrash2
+								size={20}
+								color="#a8a8b3"
+							/>
+						</button>
+						<button style={{marginRight: "5%"}} className="deleteIcon" onClick={() => updateRecipe(recipe.id)} type="button">
+							<FiEdit
 								size={20}
 								color="#a8a8b3"
 							/>

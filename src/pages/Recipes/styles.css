@@ -86,10 +86,6 @@
     font-size: 16px;
 }
 
-.trashIcon:hover {
-    color: red;
-}
-
 .search-container {
     display: flex;
     justify-content: space-between;
