@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { FiArrowLeft } from 'react-icons/fi'
+import Select from 'react-select'
 
 import api from '../../services/api'
 
@@ -13,12 +14,23 @@ export default function NewIncident() {
   const [categoria, setCategoria] = useState('')
   const [ingredientes, setIngredientes] = useState('')
   const [modoPreparo, setModoPreparo] = useState('')
-  const [porcoes, setPorcoes] = useState(null)
-  const [tempoPreparoMinutos, setTempoPreparoMinutos] = useState(null)
+  const [porcoes, setPorcoes] = useState('')
+  const [tempoPreparoMinutos, setTempoPreparoMinutos] = useState('')
+  const [categoriasSelect, setCategoriasSelect] = useState([])
 
   const history = useHistory()
 
-  async function handleNewIncident(e) {
+  async function getCategorias() {
+    const resp = await api.get('/category')
+
+    let arrayCategorias = []
+    resp.data.forEach((item) => {
+      arrayCategorias.push({ value: item.nome, label: item.nome, id: item.id})
+    })
+    setCategoriasSelect(arrayCategorias)
+  }
+
+  async function handleNewRecipe(e) {
     e.preventDefault()
 
     let pad = function(num) { 
@@ -33,16 +45,20 @@ export default function NewIncident() {
       pad(date.getUTCMinutes()) + ':' +
       pad(date.getUTCSeconds())
 
+    let idCategoria = categoriasSelect.filter((item =>{
+      return item.value === categoria
+    }))
+    
     const data = {
       nome: nome,
-      id_categorias: 1,
-      tempo_preparo_minutos: tempoPreparoMinutos,
+      id_categorias: idCategoria[0].id,
+      tempo_preparo_minutos: parseInt(tempoPreparoMinutos) ,
       modo_preparo: modoPreparo,
-      porcoes: porcoes,
+      porcoes: parseInt(porcoes) ,
       ingredientes: ingredientes,
       criado_em: date,
       alterado_em: date
-    }   
+    }  
 
     try {
       await api.post("/recipes", data)
@@ -51,6 +67,10 @@ export default function NewIncident() {
       alert('Erro ao cadastrar caso, tente novamente.')
     }
   }
+
+  useEffect(() => {
+		getCategorias()
+	}, [])
 
   return (
     <div className="new-incident-container">
@@ -67,9 +87,11 @@ export default function NewIncident() {
           </span>
 
         </section>
-        <form onSubmit={handleNewIncident}>
-          <input placeholder="Nome da Receita" value={nome} onChange={e => setNome(e.target.value)} />
-          <input placeholder="Categoria" value={categoria} onChange={e => setCategoria(e.target.value)} />
+        <form onSubmit={handleNewRecipe}>
+          <input style={{marginBottom: "8px"}} placeholder="Nome da Receita" value={nome} onChange={e => setNome(e.target.value)} />
+          <Select onChange={(categoria) => {
+            setCategoria(categoria.value)
+            }} placeholder="Categorias" options={categoriasSelect} />
           <input placeholder="Ingredientes" value={ingredientes} onChange={e => setIngredientes(e.target.value)} />
           <input min="1" type="number" placeholder="Tempo de Preparo" value={tempoPreparoMinutos} onChange={e => setTempoPreparoMinutos(e.target.value)} />
           <textarea placeholder="Modo de Preparo" value={modoPreparo} onChange={e => setModoPreparo(e.target.value)} />
