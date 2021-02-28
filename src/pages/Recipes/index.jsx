@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import moment from 'moment'
 import { Link, useHistory } from 'react-router-dom'
 import { FiPower, FiTrash2, FiEdit } from 'react-icons/fi'
 import chefLogo from '../../assets/chefLogo.png'
@@ -59,7 +60,7 @@ export default function Recipes() {
 	}
 
 	return (
-		<div className="profile-container">
+		<div className="recipe-container">
 			<header>
 				<img src={chefLogo} alt="Chef Logo" />
 				<span> Bem-vindo, {userData} </span>
@@ -88,11 +89,14 @@ export default function Recipes() {
 						<strong> CATEGORIA: </strong>
 						<p> {recipe.nomeCategoria} </p>
 
+						<strong> CRIADO EM: </strong>
+						<p> {moment(recipe.criado_em).format('DD/MM/YYYY HH:MM')} </p>
+
+						<strong> TEMPO DE PREPARO: </strong>
+						<p> {recipe.tempo_preparo_minutos} minutos </p>
+
 						<strong> INGREDIENTES: </strong>
 						<p> {recipe.ingredientes} </p>
-
-						<strong> DATA: </strong>
-						<p> {recipe.criado_em} </p>
 
 						<strong> MODO DE PREPARO: </strong>
 						<p> {recipe.modo_preparo} </p>
@@ -100,16 +104,16 @@ export default function Recipes() {
 						<strong> PORÇÕES: </strong>
 						<p> {recipe.porcoes} </p>
 
-						<button className="deleteIcon" onClick={() => deleteRecipe(recipe.id)} type="button">
+						<button onClick={() => deleteRecipe(recipe.id)} type="button">
 							<FiTrash2
 								size={20}
-								color="#a8a8b3"
+								color="#b20000"
 							/>
 						</button>
-						<button style={{marginRight: "5%"}} className="deleteIcon" onClick={() => updateRecipe(recipe.id)} type="button">
+						<button style={{marginRight: "5%"}}  onClick={() => updateRecipe(recipe.id)} type="button">
 							<FiEdit
 								size={20}
-								color="#a8a8b3"
+								color="#dab600"
 							/>
 						</button>
 					</li>

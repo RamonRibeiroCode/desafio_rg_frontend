@@ -83,7 +83,7 @@ export default function UpdateRecipe() {
 	}, [])
 
   return (
-    <div className="new-incident-container">
+    <div className="new-recipe-container">
       <div className="content">
         <section style={{ display: 'flex', width: '100%', flexDirection: 'column', alignItems: 'center' }}>
           <img src={chefLogo} alt="Chef Logo" />
