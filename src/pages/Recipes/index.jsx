@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import moment from 'moment'
 import { Link, useHistory } from 'react-router-dom'
-import { FiPower, FiTrash2, FiEdit } from 'react-icons/fi'
+import { FiPower, FiTrash2, FiEdit, FiPrinter } from 'react-icons/fi'
 import chefLogo from '../../assets/chefLogo.png'
 import api from '../../services/api'
 import { toast } from 'react-toastify'
+import { saveAs } from 'file-saver'
 import './styles.css'
 
 export default function Recipes() {
@@ -19,15 +20,15 @@ export default function Recipes() {
 	async function getRecipes() {
 		try {
 			await api.get("/recipes")
-        .then((resp) => {
-          setRecipes(resp.data)
-          const filteredRecipes = recipes.filter(recipe => {
-            return recipe.nomeReceita.toLowerCase().includes(search.toLowerCase().trim())
-          })
-      
-          setVisibleRecipes(filteredRecipes)
-        })
-			
+				.then((resp) => {
+					setRecipes(resp.data)
+					const filteredRecipes = recipes.filter(recipe => {
+						return recipe.nomeReceita.toLowerCase().includes(search.toLowerCase().trim())
+					})
+
+					setVisibleRecipes(filteredRecipes)
+				})
+
 		} catch {
 			toast.error("Não foi possivel resgatar suas receitas")
 		}
@@ -41,12 +42,25 @@ export default function Recipes() {
 	async function deleteRecipe(id) {
 		try {
 			await api.delete(`/recipes/${id}`)
-        	toast.success("Receita deletada com sucesso")
-        	getRecipes()
+			toast.success("Receita deletada com sucesso")
+			getRecipes()
 
 		} catch (err) {
 			toast.error(err.msg)
 		}
+	}
+
+	async function printRecipe(id) {
+		const recipeToSend = recipes.filter(recipe => {
+			return recipe.id === id
+		})
+
+		await api.post('/printer', recipeToSend[0])
+			.then(() => api.get('/printer', {responseType: 'blob'}))
+			.then(res => {
+				const pdfBlob = new Blob([res.data], { type: 'application/pdf' })
+				saveAs(pdfBlob, 'Receita.pdf')
+			})
 	}
 
 	useEffect(() => {
@@ -79,7 +93,7 @@ export default function Recipes() {
 				/>
 			</div>
 
-			<h1 style={{marginTop: "4%"}}> Receitas Cadastradas </h1>
+			<h1 style={{ marginTop: "4%" }}> Receitas Cadastradas </h1>
 			<ul>
 				{visibleRecipes.map(recipe => (
 					<li key={recipe.id}>
@@ -110,10 +124,17 @@ export default function Recipes() {
 								color="#b20000"
 							/>
 						</button>
-						<button style={{marginRight: "5%"}}  onClick={() => updateRecipe(recipe.id)} type="button">
+						<button style={{ marginRight: "5%" }} onClick={() => updateRecipe(recipe.id)} type="button">
 							<FiEdit
 								size={20}
 								color="#dab600"
+							/>
+						</button>
+
+						<button style={{ marginRight: "10%" }} onClick={() => printRecipe(recipe.id)} type="button">
+							<FiPrinter
+								size={20}
+								color="#5F9F9F"
 							/>
 						</button>
 					</li>
